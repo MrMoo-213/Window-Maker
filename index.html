@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>Tkinter Builder</title>
-
+<title>Window Builder</title>
 <style>
-
 body{
     margin:0;
     background:#202020;
     font-family:"Segoe UI";
     color:white;
 }
-
-
 #bar{
     height:50px;
     background:#333;
@@ -22,22 +17,16 @@ body{
     gap:10px;
     padding:5px;
 }
-
-
 .toolbox{
     background:#444;
     padding:8px 15px;
     border-radius:6px;
     cursor:grab;
 }
-
-
 .tk-button{
     padding:5px 15px;
     font-family:"Segoe UI";
 }
-
-
 #window{
     position:relative;
     margin:30px;
@@ -50,8 +39,6 @@ body{
     resize:both;
     border:1px solid #555;
 }
-
-
 #title{
     height:35px;
     background:#e5e5e5;
@@ -59,18 +46,12 @@ body{
     align-items:center;
     padding-left:12px;
 }
-
-
 #titleText{
     outline:none;
 }
-
-
 .item{
     position:absolute;
 }
-
-
 .move{
     display:none;
     position:absolute;
@@ -83,13 +64,9 @@ body{
     cursor:move;
     font-size:14px;
 }
-
-
 .item:hover .move{
     display:block;
 }
-
-
 .editText{
     border:none;
     outline:none;
@@ -97,24 +74,16 @@ body{
     font-family:"Segoe UI";
     font-size:14px;
 }
-
-
 .editButton{
     padding:5px 15px;
 }
-
-
 .editEntry{
     width:120px;
     height:22px;
 }
-
-
 #codeButtons{
     margin:20px;
 }
-
-
 #output{
     width:90%;
     height:250px;
@@ -123,456 +92,185 @@ body{
     padding:15px;
     font-family:Consolas;
 }
-
-
 </style>
-
 </head>
-
-
 <body>
 
-
 <div id="bar">
-
-
-<div class="toolbox" draggable="true" data-type="Label">
-Label
+<div class="toolbox" draggable="true" data-type="Label">Label</div>
+<div class="toolbox" draggable="true" data-type="Button">Button</div>
+<div class="toolbox" draggable="true" data-type="Entry">Entry</div>
+<div class="toolbox" draggable="true" data-type="Checkbutton">Checkbutton</div>
 </div>
-
-
-<div class="toolbox" draggable="true" data-type="Button">
-Button
-</div>
-
-
-<div class="toolbox" draggable="true" data-type="Entry">
-Entry
-</div>
-
-
-<div class="toolbox" draggable="true" data-type="Checkbutton">
-Checkbutton
-</div>
-
-
-</div>
-
-
 
 <div id="window">
-
 <div id="title">
-
-<span id="titleText" contenteditable="true">
-Test Window
-</span>
-
+<span id="titleText" contenteditable="true">Window Name</span>
 </div>
-
 </div>
-
-
 
 <div id="codeButtons">
-
-<button class="tk-button" onclick="copyCode()">
-Copy
-</button>
-
-<button class="tk-button" onclick="downloadCode()">
-Download
-</button>
-
+<button class="tk-button" onclick="copyCode()">Copy</button>
+<button class="tk-button" onclick="downloadCode()">Download</button>
 </div>
-
-
 
 <textarea id="output"></textarea>
 
-
-
-
 <script>
-
-
 let win=document.getElementById("window");
 let items=[];
 let updateTimer;
 
-
-
 function requestUpdate(){
-
-clearTimeout(updateTimer);
-
-updateTimer=setTimeout(generate,1000);
-
+    clearTimeout(updateTimer);
+    updateTimer=setTimeout(generate,1000);
 }
 
-
-
-
-
 document.querySelectorAll(".toolbox").forEach(tool=>{
-
-tool.ondragstart=e=>{
-
-e.dataTransfer.setData(
-"type",
-tool.dataset.type
-);
-
-};
-
+    tool.ondragstart=e=>{
+        e.dataTransfer.setData("type",tool.dataset.type);
+    };
 });
-
-
 
 win.ondragover=e=>e.preventDefault();
 
-
-
 win.ondrop=e=>{
-
-
-let type=e.dataTransfer.getData("type");
-
-
-let el=document.createElement("div");
-
-el.className="item";
-
-el.dataset.type=type;
-
-
-
-let move=document.createElement("div");
-
-move.className="move";
-
-move.innerHTML="✥";
-
-el.appendChild(move);
-
-
-
-
-if(type=="Label"){
-
-
-let input=document.createElement("input");
-
-input.className="editText";
-
-input.value="Text Label";
-
-input.oninput=requestUpdate;
-
-el.appendChild(input);
-
-
-}
-
-
-
-
-
-if(type=="Button"){
-
-
-let button=document.createElement("button");
-
-button.className="editButton";
-
-
-let input=document.createElement("input");
-
-input.className="editText";
-
-input.value="Button";
-
-input.oninput=requestUpdate;
-
-
-button.appendChild(input);
-
-el.appendChild(button);
-
-
-}
-
-
-
-
-
-if(type=="Entry"){
-
-
-let input=document.createElement("input");
-
-input.className="editEntry";
-
-el.appendChild(input);
-
-
-}
-
-
-
-
-
-if(type=="Checkbutton"){
-
-
-let check=document.createElement("input");
-
-check.type="checkbox";
-
-el.appendChild(check);
-
-
-}
-
-
-
-
-
-let rect=win.getBoundingClientRect();
-
-
-el.style.left=
-(e.clientX-rect.left)+"px";
-
-
-el.style.top=
-(e.clientY-rect.top)+"px";
-
-
-
-win.appendChild(el);
-
-items.push(el);
-
-
-moveElement(move,el);
-
-
-generate();
-
-
+    let type=e.dataTransfer.getData("type");
+    let el=document.createElement("div");
+    el.className="item";
+    el.dataset.type=type;
+
+    let move=document.createElement("div");
+    move.className="move";
+    move.innerHTML="✥";
+    el.appendChild(move);
+
+    if(type=="Label"){
+        let input=document.createElement("input");
+        input.className="editText";
+        input.value="Text Label";
+        input.oninput=requestUpdate;
+        el.appendChild(input);
+    }
+
+    if(type=="Button"){
+        let button=document.createElement("button");
+        button.className="editButton";
+
+        let input=document.createElement("input");
+        input.className="editText";
+        input.value="Button";
+        input.oninput=requestUpdate;
+
+        button.appendChild(input);
+        el.appendChild(button);
+    }
+
+    if(type=="Entry"){
+        let input=document.createElement("input");
+        input.className="editEntry";
+        el.appendChild(input);
+    }
+
+    if(type=="Checkbutton"){
+        let check=document.createElement("input");
+        check.type="checkbox";
+        el.appendChild(check);
+    }
+
+    let rect=win.getBoundingClientRect();
+
+    el.style.left=(e.clientX-rect.left)+"px";
+    el.style.top=(e.clientY-rect.top)+"px";
+
+    win.appendChild(el);
+    items.push(el);
+
+    moveElement(move,el);
+    generate();
 };
-
-
-
-
-
 
 function moveElement(handle,el){
+    let ox;
+    let oy;
 
+    handle.onmousedown=e=>{
+        ox=e.clientX-parseInt(el.style.left);
+        oy=e.clientY-parseInt(el.style.top);
 
-let ox;
-let oy;
+        document.onmousemove=m=>{
+            el.style.left=(m.clientX-ox)+"px";
+            el.style.top=(m.clientY-oy)+"px";
+            requestUpdate();
+        };
 
-
-
-handle.onmousedown=e=>{
-
-
-ox=e.clientX-parseInt(el.style.left);
-
-oy=e.clientY-parseInt(el.style.top);
-
-
-
-document.onmousemove=m=>{
-
-
-el.style.left=
-(m.clientX-ox)+"px";
-
-
-el.style.top=
-(m.clientY-oy)+"px";
-
-
-requestUpdate();
-
-
-};
-
-
-
-document.onmouseup=()=>{
-
-document.onmousemove=null;
-
-};
-
-
-};
-
-
+        document.onmouseup=()=>{
+            document.onmousemove=null;
+        };
+    };
 }
-
-
-
-
-
 
 function generate(){
+    let code=`import tkinter as tk\n\n`;
+    code+=`window=tk.Tk()\n`;
+    code+=`window.title("${titleText.innerText}")\n`;
+    code+=`window.geometry("${win.offsetWidth}x${win.offsetHeight}")\n\n`;
 
+    items.forEach((el,i)=>{
+        let x=parseInt(el.style.left);
+        let y=parseInt(el.style.top);
 
-let code=
-`import tkinter as tk\n\n`;
+        if(el.dataset.type=="Label"){
+            let text=el.querySelector(".editText").value.trim();
 
+            if(text==""){
+                el.remove();
+                return;
+            }
 
-code+=
-`window=tk.Tk()\n`;
+            code+=`label${i}=tk.Label(window,text="${text}")\n`;
+            code+=`label${i}.place(x=${x},y=${y})\n\n`;
+        }
 
-code+=
-`window.title("${titleText.innerText}")\n`;
+        if(el.dataset.type=="Button"){
+            let text=el.querySelector(".editText").value;
+            code+=`button${i}=tk.Button(window,text="${text}")\n`;
+            code+=`button${i}.place(x=${x},y=${y})\n\n`;
+        }
 
-code+=
-`window.geometry("${win.offsetWidth}x${win.offsetHeight}")\n\n`;
+        if(el.dataset.type=="Entry"){
+            code+=`entry${i}=tk.Entry(window)\n`;
+            code+=`entry${i}.place(x=${x},y=${y})\n\n`;
+        }
 
+        if(el.dataset.type=="Checkbutton"){
+            code+=`check${i}=tk.Checkbutton(window)\n`;
+            code+=`check${i}.place(x=${x},y=${y})\n\n`;
+        }
+    });
 
-
-
-
-items.forEach((el,i)=>{
-
-
-let x=parseInt(el.style.left);
-let y=parseInt(el.style.top);
-
-
-
-if(el.dataset.type=="Label"){
-
-
-let text=
-el.querySelector(".editText").value.trim();
-
-
-
-if(text==""){
-
-el.remove();
-
-return;
-
+    code+="window.mainloop()";
+    output.value=code;
 }
-
-
-
-code+=
-`label${i}=tk.Label(window,text="${text}")\n`;
-
-code+=
-`label${i}.place(x=${x},y=${y})\n\n`;
-
-}
-
-
-
-if(el.dataset.type=="Button"){
-
-
-let text=
-el.querySelector(".editText").value;
-
-
-
-code+=
-`button${i}=tk.Button(window,text="${text}")\n`;
-
-code+=
-`button${i}.place(x=${x},y=${y})\n\n`;
-
-}
-
-
-
-if(el.dataset.type=="Entry"){
-
-
-code+=
-`entry${i}=tk.Entry(window)\n`;
-
-code+=
-`entry${i}.place(x=${x},y=${y})\n\n`;
-
-}
-
-
-
-if(el.dataset.type=="Checkbutton"){
-
-
-code+=
-`check${i}=tk.Checkbutton(window)\n`;
-
-code+=
-`check${i}.place(x=${x},y=${y})\n\n`;
-
-}
-
-
-});
-
-
-
-code+="window.mainloop()";
-
-
-output.value=code;
-
-
-}
-
-
-
 
 function copyCode(){
-
-navigator.clipboard.writeText(output.value);
-
+    navigator.clipboard.writeText(output.value);
 }
-
-
-
-
 
 function downloadCode(){
-
-let blob=new Blob(
-[output.value],
-{type:"text/plain"}
-);
-
-let a=document.createElement("a");
-
-a.href=
-URL.createObjectURL(blob);
-
-a.download="gui.py";
-
-a.click();
-
+    let blob=new Blob([output.value],{type:"text/plain"});
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="gui.py";
+    a.click();
 }
+
 titleText.oninput=requestUpdate;
 
-
-new ResizeObserver(requestUpdate)
-.observe(win);
-
+new ResizeObserver(requestUpdate).observe(win);
 
 generate();
-
-
 </script>
-
 
 </body>
 </html>
