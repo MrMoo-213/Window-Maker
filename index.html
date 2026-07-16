@@ -3,95 +3,25 @@
 <head>
 <title>Window Builder</title>
 <style>
-body{
-    margin:0;
-    background:#202020;
-    font-family:"Segoe UI";
-    color:white;
-}
-#bar{
-    height:50px;
-    background:#333;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:5px;
-}
-.toolbox{
-    background:#444;
-    padding:8px 15px;
-    border-radius:6px;
-    cursor:grab;
-}
-.tk-button{
-    padding:5px 15px;
-    font-family:"Segoe UI";
-}
-#window{
-    position:relative;
-    margin:30px;
-    width:600px;
-    height:400px;
-    background:white;
-    color:black;
-    border-radius:14px;
-    overflow:hidden;
-    resize:both;
-    border:1px solid #555;
-}
-#title{
-    height:35px;
-    background:#e5e5e5;
-    display:flex;
-    align-items:center;
-    padding-left:12px;
-}
-#titleText{
-    outline:none;
-}
-.item{
-    position:absolute;
-}
-.move{
-    display:none;
-    position:absolute;
-    top:-22px;
-    left:0;
-    background:#333;
-    color:white;
-    padding:3px 8px;
-    border-radius:5px;
-    cursor:move;
-    font-size:14px;
-}
-.item:hover .move{
-    display:block;
-}
-.editText{
-    border:none;
-    outline:none;
-    background:transparent;
-    font-family:"Segoe UI";
-    font-size:14px;
-}
-.editButton{
-    padding:5px 15px;
-}
-.editEntry{
-    width:120px;
-    height:22px;
-}
-#codeButtons{
-    margin:20px;
-}
-#output{
-    width:90%;
-    height:250px;
-    margin:20px;
-    border-radius:12px;
-    padding:15px;
-    font-family:Consolas;
-}
+body{margin:0;background:#202020;font-family:"Segoe UI";color:white}
+#bar{height:50px;background:#333;display:flex;align-items:center;gap:10px;padding:5px}
+.toolbox{background:#444;padding:8px 15px;border-radius:6px;cursor:grab}
+.tk-button{padding:5px 15px;font-family:"Segoe UI"}
+#window{position:relative;margin:30px;width:600px;height:400px;background:white;color:black;border-radius:14px;overflow:hidden;resize:both;border:1px solid #555}
+#title{height:35px;background:#e5e5e5;display:flex;align-items:center;padding-left:12px}
+#titleText{outline:none}
+.item{position:absolute}
+.move{display:none;position:absolute;top:-22px;left:0;background:#333;color:white;padding:3px 8px;border-radius:5px;cursor:move;font-size:14px}
+.item:hover .move{display:block}
+.editText{border:none;outline:none;background:transparent;font-family:"Segoe UI";font-size:14px}
+.editButton{padding:5px 15px}
+.editEntry{width:120px;height:22px}
+#codeBox{width:90%;margin:20px;border-radius:12px;overflow:hidden;background:#111}
+#codeTop{height:40px;background:#222;display:flex;align-items:center;padding:0 12px;gap:10px}
+#language{color:#ddd;font-size:14px;flex:1}
+.iconButton{width:32px;height:32px;border:0;border-radius:6px;background:#333;color:white;cursor:pointer;font-size:16px}
+.iconButton:hover{background:#555}
+#output{width:100%;height:250px;margin:0;border:0;outline:none;resize:none;padding:15px;box-sizing:border-box;background:#111;color:white;font-family:Consolas,monospace}
 </style>
 </head>
 <body>
@@ -104,171 +34,155 @@ body{
 </div>
 
 <div id="window">
-<div id="title">
-<span id="titleText" contenteditable="true">Window Name</span>
-</div>
+<div id="title"><span id="titleText" contenteditable="true">Window Name</span></div>
 </div>
 
-<div id="codeButtons">
-<button class="tk-button" onclick="copyCode()">Copy</button>
-<button class="tk-button" onclick="downloadCode()">Download</button>
+<div id="codeBox">
+<div id="codeTop">
+<div id="language">Python</div>
+<button class="iconButton" onclick="copyCode()" title="Copy">📋</button>
+<button class="iconButton" onclick="downloadCode()" title="Download">⬇</button>
 </div>
-
 <textarea id="output"></textarea>
+</div>
 
 <script>
-let win=document.getElementById("window");
-let items=[];
-let updateTimer;
+let win=document.getElementById("window"),items=[],updateTimer;
 
 function requestUpdate(){
-    clearTimeout(updateTimer);
-    updateTimer=setTimeout(generate,1000);
+clearTimeout(updateTimer);
+updateTimer=setTimeout(generate,1000);
 }
 
 document.querySelectorAll(".toolbox").forEach(tool=>{
-    tool.ondragstart=e=>{
-        e.dataTransfer.setData("type",tool.dataset.type);
-    };
+tool.ondragstart=e=>{
+e.dataTransfer.setData("type",tool.dataset.type);
+};
 });
 
 win.ondragover=e=>e.preventDefault();
 
 win.ondrop=e=>{
-    let type=e.dataTransfer.getData("type");
-    let el=document.createElement("div");
-    el.className="item";
-    el.dataset.type=type;
+let type=e.dataTransfer.getData("type");
+let el=document.createElement("div");
+el.className="item";
+el.dataset.type=type;
 
-    let move=document.createElement("div");
-    move.className="move";
-    move.innerHTML="✥";
-    el.appendChild(move);
+let move=document.createElement("div");
+move.className="move";
+move.innerHTML="✥";
+el.appendChild(move);
 
-    if(type=="Label"){
-        let input=document.createElement("input");
-        input.className="editText";
-        input.value="Text Label";
-        input.oninput=requestUpdate;
-        el.appendChild(input);
-    }
+if(type=="Label"){
+let input=document.createElement("input");
+input.className="editText";
+input.value="Text Label";
+input.oninput=requestUpdate;
+el.appendChild(input);
+}
 
-    if(type=="Button"){
-        let button=document.createElement("button");
-        button.className="editButton";
+if(type=="Button"){
+let button=document.createElement("button");
+button.className="editButton";
+let input=document.createElement("input");
+input.className="editText";
+input.value="Button";
+input.oninput=requestUpdate;
+button.appendChild(input);
+el.appendChild(button);
+}
 
-        let input=document.createElement("input");
-        input.className="editText";
-        input.value="Button";
-        input.oninput=requestUpdate;
+if(type=="Entry"){
+let input=document.createElement("input");
+input.className="editEntry";
+el.appendChild(input);
+}
 
-        button.appendChild(input);
-        el.appendChild(button);
-    }
+if(type=="Checkbutton"){
+let check=document.createElement("input");
+check.type="checkbox";
+el.appendChild(check);
+}
 
-    if(type=="Entry"){
-        let input=document.createElement("input");
-        input.className="editEntry";
-        el.appendChild(input);
-    }
+let rect=win.getBoundingClientRect();
+el.style.left=e.clientX-rect.left+"px";
+el.style.top=e.clientY-rect.top+"px";
 
-    if(type=="Checkbutton"){
-        let check=document.createElement("input");
-        check.type="checkbox";
-        el.appendChild(check);
-    }
-
-    let rect=win.getBoundingClientRect();
-
-    el.style.left=(e.clientX-rect.left)+"px";
-    el.style.top=(e.clientY-rect.top)+"px";
-
-    win.appendChild(el);
-    items.push(el);
-
-    moveElement(move,el);
-    generate();
+win.appendChild(el);
+items.push(el);
+moveElement(move,el);
+generate();
 };
 
 function moveElement(handle,el){
-    let ox;
-    let oy;
+let ox,oy;
+handle.onmousedown=e=>{
+ox=e.clientX-parseInt(el.style.left);
+oy=e.clientY-parseInt(el.style.top);
 
-    handle.onmousedown=e=>{
-        ox=e.clientX-parseInt(el.style.left);
-        oy=e.clientY-parseInt(el.style.top);
+document.onmousemove=m=>{
+el.style.left=m.clientX-ox+"px";
+el.style.top=m.clientY-oy+"px";
+requestUpdate();
+};
 
-        document.onmousemove=m=>{
-            el.style.left=(m.clientX-ox)+"px";
-            el.style.top=(m.clientY-oy)+"px";
-            requestUpdate();
-        };
-
-        document.onmouseup=()=>{
-            document.onmousemove=null;
-        };
-    };
+document.onmouseup=()=>{
+document.onmousemove=null;
+};
+};
 }
 
 function generate(){
-    let code=`import tkinter as tk\n\n`;
-    code+=`window=tk.Tk()\n`;
-    code+=`window.title("${titleText.innerText}")\n`;
-    code+=`window.geometry("${win.offsetWidth}x${win.offsetHeight}")\n\n`;
+let code=`import tkinter as tk\n\n`;
+code+=`window=tk.Tk()\n`;
+code+=`window.title("${titleText.innerText}")\n`;
+code+=`window.geometry("${win.offsetWidth}x${win.offsetHeight}")\n\n`;
 
-    items.forEach((el,i)=>{
-        let x=parseInt(el.style.left);
-        let y=parseInt(el.style.top);
+items.forEach((el,i)=>{
+let x=parseInt(el.style.left),y=parseInt(el.style.top);
 
-        if(el.dataset.type=="Label"){
-            let text=el.querySelector(".editText").value.trim();
+if(el.dataset.type=="Label"){
+let text=el.querySelector(".editText").value.trim();
+if(text==""){el.remove();return}
+code+=`label${i}=tk.Label(window,text="${text}")\n`;
+code+=`label${i}.place(x=${x},y=${y})\n\n`;
+}
 
-            if(text==""){
-                el.remove();
-                return;
-            }
+if(el.dataset.type=="Button"){
+let text=el.querySelector(".editText").value;
+code+=`button${i}=tk.Button(window,text="${text}")\n`;
+code+=`button${i}.place(x=${x},y=${y})\n\n`;
+}
 
-            code+=`label${i}=tk.Label(window,text="${text}")\n`;
-            code+=`label${i}.place(x=${x},y=${y})\n\n`;
-        }
+if(el.dataset.type=="Entry"){
+code+=`entry${i}=tk.Entry(window)\n`;
+code+=`entry${i}.place(x=${x},y=${y})\n\n`;
+}
 
-        if(el.dataset.type=="Button"){
-            let text=el.querySelector(".editText").value;
-            code+=`button${i}=tk.Button(window,text="${text}")\n`;
-            code+=`button${i}.place(x=${x},y=${y})\n\n`;
-        }
+if(el.dataset.type=="Checkbutton"){
+code+=`check${i}=tk.Checkbutton(window)\n`;
+code+=`check${i}.place(x=${x},y=${y})\n\n`;
+}
+});
 
-        if(el.dataset.type=="Entry"){
-            code+=`entry${i}=tk.Entry(window)\n`;
-            code+=`entry${i}.place(x=${x},y=${y})\n\n`;
-        }
-
-        if(el.dataset.type=="Checkbutton"){
-            code+=`check${i}=tk.Checkbutton(window)\n`;
-            code+=`check${i}.place(x=${x},y=${y})\n\n`;
-        }
-    });
-
-    code+="window.mainloop()";
-    output.value=code;
+code+="window.mainloop()";
+output.value=code;
 }
 
 function copyCode(){
-    navigator.clipboard.writeText(output.value);
+navigator.clipboard.writeText(output.value);
 }
 
 function downloadCode(){
-    let blob=new Blob([output.value],{type:"text/plain"});
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="gui.py";
-    a.click();
+let blob=new Blob([output.value],{type:"text/plain"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="gui.py";
+a.click();
 }
 
 titleText.oninput=requestUpdate;
-
 new ResizeObserver(requestUpdate).observe(win);
-
 generate();
 </script>
 
